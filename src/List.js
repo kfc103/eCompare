@@ -5,98 +5,168 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import Container from "@material-ui/core/Container";
+import IconButton from "@material-ui/core/IconButton";
+import Divider from "@material-ui/core/Divider";
+import DeleteIcon from "@material-ui/icons/Delete";
+import AddIcon from "@material-ui/icons/Add";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     width: "100%",
-    maxWidth: 360,
     backgroundColor: theme.palette.background.paper
   }
 }));
 
-function ListItemLink(props) {
-  return <ListItem button component="a" {...props} />;
-}
-
 export default function SimpleList() {
   const classes = useStyles();
 
-  const defaultdata = [
-    { id: 1, quantity: 1, price: 50, unitprice: "", rank: "" },
-    { id: 2, quantity: 2, price: 100, unitprice: "", rank: "" },
-    { id: 3, quantity: 1, price: 75, unitprice: "", rank: "" }
-  ];
+  function createData(
+    id,
+    quantity = "",
+    price = "",
+    unitprice = "",
+    rank = ""
+  ) {
+    return {
+      id,
+      quantity,
+      price,
+      unitprice,
+      rank
+    };
+  }
+
+  /*const defaultdata = [
+    createData(1, 1, 50, "", ""),
+    createData(2, 2, 100, "", ""),
+    createData(3, 1, 75, "", "")
+  ];*/
+  const defaultdata = [createData(1), createData(2)];
 
   const [data, setData] = React.useState(defaultdata);
 
-  const updateUnitPrice = (index) => {
+  const calUnitPrice = (item) => {
+    let unitprice = item.price / item.quantity;
+
+    if (unitprice === Infinity || unitprice === undefined || isNaN(unitprice))
+      return "";
+
+    return unitprice;
+  };
+  function updateUnitPrice(index) {
     let newArr = [...data];
 
     if (index === undefined) {
       newArr.forEach((item) => {
-        let unitprice = item.price / item.quantity;
-        item.unitprice =
-          unitprice === Infinity || unitprice === undefined ? "" : unitprice;
+        item.unitprice = calUnitPrice(item);
       });
     } else {
-      let unitprice = newArr[index].price / newArr[index].quantity;
-      newArr[index].unitprice =
-        unitprice === Infinity || unitprice === undefined ? "" : unitprice;
+      newArr[index].unitprice = calUnitPrice(newArr[index]);
     }
 
     setData(newArr);
-    //setState(Date.now());
-  };
-
-  function rank() {
-    data.sort(function (a, b) {
-      return a.price - b.price;
-    });
-    console.log(data);
   }
 
-  const updateFieldChanged = (index) => (e) => {
-    const re = /^[0-9\b]+$/;
+  function rank() {
+    let rankedArr = [...data];
+    let newArr = [...data];
+    rankedArr.sort((a, b) => {
+      return a.unitprice - b.unitprice;
+    });
+    newArr.forEach((item) => {
+      if (item.unitprice === "") item.rank = "";
+      else {
+        if (item.unitprice === rankedArr[0].unitprice) item.rank = "1st";
+        else if (item.unitprice === rankedArr[1].unitprice) item.rank = "2nd";
+        else if (item.unitprice === rankedArr[2].unitprice) item.rank = "3rd";
+        else item.rank = "";
+      }
+    });
+    setData(newArr);
+  }
 
-    // if value is not blank, then test the regex
-    if (e.target.value === "" || re.test(e.target.value)) {
-      let newArr = [...data]; // copying the old datas array
-      newArr[index][e.target.name] = e.target.value; // replace e.target.value with whatever you want to change it to
+  function updateFieldChanged(index) {
+    return (e) => {
+      const re = /^[0-9\b]+$/;
 
-      updateUnitPrice(index);
-      setData(newArr);
-    }
-  };
+      // if value is not blank, then test the regex
+      if (e.target.value === "" || re.test(e.target.value)) {
+        let newArr = [...data]; // copying the old datas array
+        newArr[index][e.target.name] = e.target.value; // replace e.target.value with whatever you want to change it to
+
+        updateUnitPrice(index);
+        rank();
+        setData(newArr);
+      }
+    };
+  }
+
+  function addItem() {
+    let newArr = [...data];
+    newArr.push(createData(newArr.length + 1));
+    setData(newArr);
+  }
+
+  function removeItem(item) {
+    let newArr = [...data];
+    newArr.splice(data.indexOf(item), 1);
+    setData(newArr);
+  }
 
   return (
-    <div className={classes.root}>
-      <List component="nav" aria-label="main">
-        {data.map((item, index) => (
-          <ListItem button key={item.id}>
-            <TextField
-              name="quantity"
-              label="Quantity"
-              value={item.quantity}
-              onChange={updateFieldChanged(index)}
-            />
-            <TextField name="price" label="Price" value={item.price} />
-            <TextField
-              name="up"
-              label="Unit Price"
-              value={item.unitprice}
-              disabled
-            />
-            <ListItemText primary={item.rank} />
+    <Container component="main">
+      <div className={classes.root}>
+        <List aria-label="main">
+          {data.map((item, index) => (
+            <ListItem key={item.id}>
+              <TextField
+                name="price"
+                label="Price"
+                value={item.price}
+                onChange={updateFieldChanged(index)}
+              />
+              <TextField
+                name="quantity"
+                label="Quantity"
+                value={item.quantity}
+                onChange={updateFieldChanged(index)}
+              />
+              <ListItemText
+                primary={"Rank: " + item.rank}
+                secondary={"Unit Price: " + item.unitprice}
+                fullWidth
+              />
+              <IconButton aria-label="delete" onClick={() => removeItem(item)}>
+                <DeleteIcon />
+              </IconButton>
+            </ListItem>
+          ))}
+          <ListItem>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={() => {
+                return addItem();
+              }}
+            >
+              <AddIcon />
+            </Button>
           </ListItem>
-        ))}
-      </List>
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => updateUnitPrice()}
-      >
-        Primary
-      </Button>
-    </div>
+        </List>
+
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => updateUnitPrice()}
+        >
+          Primary
+        </Button>
+        <Button variant="contained" color="primary" onClick={() => rank()}>
+          Rank
+        </Button>
+      </div>
+    </Container>
   );
 }
