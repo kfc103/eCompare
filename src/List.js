@@ -7,9 +7,14 @@ import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
 import IconButton from "@material-ui/core/IconButton";
-import Divider from "@material-ui/core/Divider";
 import DeleteIcon from "@material-ui/icons/Delete";
 import AddIcon from "@material-ui/icons/Add";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -45,6 +50,7 @@ export default function SimpleList() {
   const defaultdata = [createData(1), createData(2)];
 
   const [data, setData] = React.useState(defaultdata);
+  const [listId, setListId] = React.useState(defaultdata.length);
 
   const calUnitPrice = (item) => {
     let unitprice = item.price / item.quantity;
@@ -54,6 +60,7 @@ export default function SimpleList() {
 
     return unitprice;
   };
+
   function updateUnitPrice(index) {
     let newArr = [...data];
 
@@ -69,21 +76,44 @@ export default function SimpleList() {
   }
 
   function rank() {
-    let rankedArr = [...data];
     let newArr = [...data];
-    rankedArr.sort((a, b) => {
-      return a.unitprice - b.unitprice;
-    });
-    newArr.forEach((item) => {
-      if (item.unitprice === "") item.rank = "";
-      else {
-        if (item.unitprice === rankedArr[0].unitprice) item.rank = "1st";
-        else if (item.unitprice === rankedArr[1].unitprice) item.rank = "2nd";
-        else if (item.unitprice === rankedArr[2].unitprice) item.rank = "3rd";
-        else item.rank = "";
-      }
-    });
+
+    if (isListRankable()) {
+      let rankedArr = [...data];
+
+      rankedArr.sort((a, b) => {
+        return a.unitprice - b.unitprice;
+      });
+
+      newArr.forEach((item) => {
+        if (item.unitprice === "") item.rank = "";
+        else {
+          if (item.unitprice === rankedArr[0].unitprice) item.rank = "1st";
+          else if (item.unitprice === rankedArr[1].unitprice) item.rank = "2nd";
+          else if (item.unitprice === rankedArr[2].unitprice) item.rank = "3rd";
+          else item.rank = "";
+        }
+      });
+    } else {
+      newArr.forEach((item) => {
+        item.rank = "";
+      });
+    }
+
     setData(newArr);
+  }
+
+  function isListRankable() {
+    let retVal = true;
+    data.forEach((item) => {
+      if (
+        item.unitprice === "" ||
+        item.unitprice === undefined ||
+        isNaN(item.unitprice)
+      )
+        retVal = false;
+    });
+    return retVal;
   }
 
   function updateFieldChanged(index) {
@@ -104,68 +134,88 @@ export default function SimpleList() {
 
   function addItem() {
     let newArr = [...data];
-    newArr.push(createData(newArr.length + 1));
+    let newId = listId + 1;
+    newArr.push(createData(newId));
+    setListId(newId);
     setData(newArr);
   }
 
   function removeItem(item) {
     let newArr = [...data];
     newArr.splice(data.indexOf(item), 1);
+    rank();
     setData(newArr);
   }
 
   return (
     <Container component="main">
       <div className={classes.root}>
-        <List aria-label="main">
-          {data.map((item, index) => (
-            <ListItem key={item.id}>
-              <TextField
-                name="price"
-                label="Price"
-                value={item.price}
-                onChange={updateFieldChanged(index)}
-              />
-              <TextField
-                name="quantity"
-                label="Quantity"
-                value={item.quantity}
-                onChange={updateFieldChanged(index)}
-              />
-              <ListItemText
-                primary={"Rank: " + item.rank}
-                secondary={"Unit Price: " + item.unitprice}
-                fullWidth
-              />
-              <IconButton aria-label="delete" onClick={() => removeItem(item)}>
-                <DeleteIcon />
-              </IconButton>
-            </ListItem>
-          ))}
-          <ListItem>
-            <Button
-              variant="contained"
-              color="primary"
-              fullWidth
-              onClick={() => {
-                return addItem();
-              }}
-            >
-              <AddIcon />
-            </Button>
-          </ListItem>
-        </List>
-
-        <Button
-          variant="contained"
-          color="primary"
-          onClick={() => updateUnitPrice()}
-        >
-          Primary
-        </Button>
-        <Button variant="contained" color="primary" onClick={() => rank()}>
-          Rank
-        </Button>
+        <TableContainer>
+          <Table
+            className={classes.table}
+            size="small"
+            stickyHeader
+            aria-label="simple table"
+          >
+            <TableHead>
+              <TableRow>
+                <TableCell align="center">Price</TableCell>
+                <TableCell align="center">Quantity</TableCell>
+                <TableCell align="center">Unit&nbsp;Price</TableCell>
+                <TableCell align="center">Rank</TableCell>
+                <TableCell></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {data.map((item, index) => (
+                <TableRow key={item.id}>
+                  <TableCell component="th" scope="row">
+                    <TextField
+                      name="price"
+                      size="small"
+                      value={item.price}
+                      onChange={updateFieldChanged(index)}
+                      onBlur={() => rank()}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      name="quantity"
+                      size="small"
+                      value={item.quantity}
+                      onChange={updateFieldChanged(index)}
+                      onBlur={() => rank()}
+                    />
+                  </TableCell>
+                  <TableCell align="right">{item.unitprice}</TableCell>
+                  <TableCell align="right">{item.rank}</TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      aria-label="delete"
+                      onClick={() => removeItem(item)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))}
+              <TableRow>
+                <TableCell colSpan={5}>
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => {
+                      return addItem();
+                    }}
+                  >
+                    <AddIcon />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
     </Container>
   );
