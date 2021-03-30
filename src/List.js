@@ -1,46 +1,10 @@
 import React from "react";
-import { makeStyles } from "@material-ui/core/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import TextField from "@material-ui/core/TextField";
-import Button from "@material-ui/core/Button";
 import Container from "@material-ui/core/Container";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import AddIcon from "@material-ui/icons/Add";
-import Table from "@material-ui/core/Table";
-import TableBody from "@material-ui/core/TableBody";
-import TableCell from "@material-ui/core/TableCell";
-import TableContainer from "@material-ui/core/TableContainer";
-import TableHead from "@material-ui/core/TableHead";
-import TableRow from "@material-ui/core/TableRow";
+import TableContent from "./ResponsiveList";
+import { useStyles } from "./Styles";
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    width: "100%",
-    backgroundColor: theme.palette.background.paper
-  }
-}));
-
-export default function SimpleList() {
+export default function List() {
   const classes = useStyles();
-
-  function createData(
-    id,
-    quantity = "",
-    price = "",
-    unitprice = "",
-    rank = ""
-  ) {
-    return {
-      id,
-      quantity,
-      price,
-      unitprice,
-      rank
-    };
-  }
 
   /*const defaultdata = [
     createData(1, 1, 50, "", ""),
@@ -52,14 +16,32 @@ export default function SimpleList() {
   const [data, setData] = React.useState(defaultdata);
   const [listId, setListId] = React.useState(defaultdata.length);
 
-  const calUnitPrice = (item) => {
-    let unitprice = item.price / item.quantity;
+  function createData(
+    id,
+    quantity = "",
+    price = "",
+    unitprice = "",
+    unit = "",
+    rank = ""
+  ) {
+    return {
+      id,
+      quantity,
+      price,
+      unitprice,
+      unit,
+      rank
+    };
+  }
 
-    if (unitprice === Infinity || unitprice === undefined || isNaN(unitprice))
-      return "";
+  function calUnitPrice(item) {
+    const unitprice = Number(
+      Math.round((item.price * item.unit.scale) / item.quantity + "e5") + "e-5"
+    );
+    if (!isFinite(unitprice) || !unitprice) return "";
 
     return unitprice;
-  };
+  }
 
   function updateUnitPrice(index) {
     let newArr = [...data];
@@ -75,11 +57,12 @@ export default function SimpleList() {
     setData(newArr);
   }
 
-  function rank() {
-    let newArr = [...data];
+  function rank(arr) {
+    let newArr = arr;
+    if (newArr === undefined) newArr = [...data];
 
-    if (isListRankable()) {
-      let rankedArr = [...data];
+    if (newArr.length > 1 && !isListError()) {
+      let rankedArr = newArr;
 
       rankedArr.sort((a, b) => {
         return a.unitprice - b.unitprice;
@@ -100,35 +83,49 @@ export default function SimpleList() {
       });
     }
 
-    setData(newArr);
+    if (!arr) setData(newArr);
+
+    return newArr;
   }
 
-  function isListRankable() {
-    let retVal = true;
-    data.forEach((item) => {
-      if (
-        item.unitprice === "" ||
-        item.unitprice === undefined ||
-        isNaN(item.unitprice)
-      )
-        retVal = false;
+  function isListError() {
+    let retVal = false;
+    let type;
+    data.forEach(function (item) {
+      const unitType = item.unit.type;
+      if (!item.unitprice) retVal = true;
+      if (type && type !== unitType) retVal = true;
+      else if (type === undefined) type = unitType;
     });
     return retVal;
   }
 
   function updateFieldChanged(index) {
     return (e) => {
-      const re = /^[0-9\b]+$/;
+      const newArr = [...data]; // copying the old datas array
+      newArr[index][e.target.name] = e.target.value; // replace e.target.value with whatever you want to change it to
 
-      // if value is not blank, then test the regex
-      if (e.target.value === "" || re.test(e.target.value)) {
-        let newArr = [...data]; // copying the old datas array
-        newArr[index][e.target.name] = e.target.value; // replace e.target.value with whatever you want to change it to
+      updateUnitPrice(index);
+      rank();
+      setData(newArr);
+    };
+  }
 
-        updateUnitPrice(index);
-        rank();
-        setData(newArr);
+  function onUnitChange(index) {
+    return (e) => {
+      const newArr = [...data]; // copying the old datas array
+      //console.log(index);
+      //console.log(JSON.parse(e.target.value));
+      try {
+        const unit = JSON.parse(e.target.value);
+        newArr[index]["unit"] = unit;
+      } catch (err) {
+        //console.error(err.message);
+        newArr[index]["unit"] = "";
       }
+      updateUnitPrice(index);
+      rank();
+      setData(newArr);
     };
   }
 
@@ -143,79 +140,21 @@ export default function SimpleList() {
   function removeItem(item) {
     let newArr = [...data];
     newArr.splice(data.indexOf(item), 1);
-    rank();
+    newArr = rank(newArr);
     setData(newArr);
   }
 
   return (
     <Container component="main">
       <div className={classes.root}>
-        <TableContainer>
-          <Table
-            className={classes.table}
-            size="small"
-            stickyHeader
-            aria-label="simple table"
-          >
-            <TableHead>
-              <TableRow>
-                <TableCell align="center">Price</TableCell>
-                <TableCell align="center">Quantity</TableCell>
-                <TableCell align="center">Unit&nbsp;Price</TableCell>
-                <TableCell align="center">Rank</TableCell>
-                <TableCell></TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {data.map((item, index) => (
-                <TableRow key={item.id}>
-                  <TableCell component="th" scope="row">
-                    <TextField
-                      name="price"
-                      size="small"
-                      value={item.price}
-                      onChange={updateFieldChanged(index)}
-                      onBlur={() => rank()}
-                    />
-                  </TableCell>
-                  <TableCell align="right">
-                    <TextField
-                      name="quantity"
-                      size="small"
-                      value={item.quantity}
-                      onChange={updateFieldChanged(index)}
-                      onBlur={() => rank()}
-                    />
-                  </TableCell>
-                  <TableCell align="right">{item.unitprice}</TableCell>
-                  <TableCell align="right">{item.rank}</TableCell>
-                  <TableCell align="right">
-                    <IconButton
-                      aria-label="delete"
-                      onClick={() => removeItem(item)}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </TableCell>
-                </TableRow>
-              ))}
-              <TableRow>
-                <TableCell colSpan={5}>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    fullWidth
-                    onClick={() => {
-                      return addItem();
-                    }}
-                  >
-                    <AddIcon />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
-        </TableContainer>
+        <TableContent
+          data={data}
+          updateFieldChanged={updateFieldChanged}
+          onUnitChange={onUnitChange}
+          rank={rank}
+          removeItem={removeItem}
+          addItem={addItem}
+        />
       </div>
     </Container>
   );
