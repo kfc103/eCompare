@@ -28,6 +28,10 @@ export default function UnitSelect({ data, ...args }) {
           <option value={unitValue("weight", "g", "0.001", "kg")}>g</option>
           <option value={unitValue("weight", "kg", "1", "kg")}>kg</option>
         </optgroup>
+        <optgroup label="Volume">
+          <option value={unitValue("volume", "ml", "0.001", "L")}>ml</option>
+          <option value={unitValue("volume", "L", "1", "L")}>L</option>
+        </optgroup>
       </Select>
     </FormControl>
   );
