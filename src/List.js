@@ -162,7 +162,7 @@ class List extends React.Component {
   addItem() {
     const newArr = [...this.state.data];
     const newId = this.state.listId + 1;
-    newArr.push(this.createData(newId));
+    newArr.push(createData(newId));
     this.setState({ listId: newId, data: newArr });
   }
 
