@@ -1,27 +1,68 @@
 import React from "react";
 import Container from "@material-ui/core/Container";
-import TableContent from "./ResponsiveList";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import ListContent from "./ListContent";
 import { useStyles } from "./Styles";
+import { prepareDb, readAll, putItem, deleteItem } from "./Storage";
+import { unitValueJSON } from "./UnitSelect";
 
-export default function List() {
-  const classes = useStyles();
+class List extends React.Component {
+  constructor(props) {
+    super(props);
 
-  /*const defaultdata = [
-    createData(1, 1, 50, "", ""),
-    createData(2, 2, 100, "", ""),
-    createData(3, 1, 75, "", "")
-  ];*/
-  const defaultdata = [createData(1), createData(2)];
+    this.state = { listId: 0, data: [], db: null, isDataReady: false };
 
-  const [data, setData] = React.useState(defaultdata);
-  const [listId, setListId] = React.useState(defaultdata.length);
+    this.addItem = this.addItem.bind(this);
+    this.removeItem = this.removeItem.bind(this);
+    this.onChange = this.onChange.bind(this);
+  }
 
-  function createData(
+  componentDidMount() {
+    prepareDb().then(
+      // resolved
+      (db) => {
+        //console.log("prepareDb: resolve", db);
+        readAll(db).then(
+          // resolved
+          (results) => {
+            //console.log("Results", results);
+            this.setState({
+              listId: results.length,
+              data: results,
+              db: db,
+              isDataReady: true
+            });
+          },
+          // rejected
+          () => {
+            console.log("readAll: rejected");
+            this.setDefaultData();
+          }
+        );
+      },
+      // rejected
+      () => {
+        console.log("prepareDb: rejected");
+        this.setDefaultData();
+      }
+    );
+  }
+
+  setDefaultData() {
+    let defaultData = [createData(1), createData(2)];
+    this.setState({
+      listId: defaultData.length,
+      data: defaultData,
+      isDataReady: true
+    });
+  }
+
+  /*createData(
     id,
     quantity = "",
     price = "",
     unitprice = "",
-    unit = "",
+    unit = JSON.parse(unitValueJSON("piece", "piece", "1", "piece")),
     rank = ""
   ) {
     return {
@@ -32,9 +73,9 @@ export default function List() {
       unit,
       rank
     };
-  }
+  }*/
 
-  function calUnitPrice(item) {
+  calUnitPrice(item) {
     const unitprice = Number(
       Math.round((item.price * item.unit.scale) / item.quantity + "e5") + "e-5"
     );
@@ -43,25 +84,25 @@ export default function List() {
     return unitprice;
   }
 
-  function updateUnitPrice(index) {
-    let newArr = [...data];
+  updateUnitPrice(index) {
+    let newArr = [...this.state.data];
 
     if (index === undefined) {
       newArr.forEach((item) => {
-        item.unitprice = calUnitPrice(item);
+        item.unitprice = this.calUnitPrice(item);
       });
     } else {
-      newArr[index].unitprice = calUnitPrice(newArr[index]);
+      newArr[index].unitprice = this.calUnitPrice(newArr[index]);
     }
 
-    setData(newArr);
+    this.setState({ data: newArr });
   }
 
-  function rank(arr) {
+  rank(arr) {
     let newArr = arr;
-    if (newArr === undefined) newArr = [...data];
+    if (newArr === undefined) newArr = [...this.state.data];
 
-    if (newArr.length > 1 && !isListError()) {
+    if (newArr.length > 1 && !this.isListError()) {
       let rankedArr = newArr;
 
       rankedArr.sort((a, b) => {
@@ -83,15 +124,15 @@ export default function List() {
       });
     }
 
-    if (!arr) setData(newArr);
+    if (!arr) this.setState({ data: newArr });
 
     return newArr;
   }
 
-  function isListError() {
+  isListError() {
     let retVal = false;
     let type;
-    data.forEach(function (item) {
+    this.state.data.forEach(function (item) {
       const unitType = item.unit.type;
       if (!item.unitprice) retVal = true;
       if (type && type !== unitType) retVal = true;
@@ -100,62 +141,76 @@ export default function List() {
     return retVal;
   }
 
-  function updateFieldChanged(index) {
+  onChange(index) {
     return (e) => {
-      const newArr = [...data]; // copying the old datas array
-      newArr[index][e.target.name] = e.target.value; // replace e.target.value with whatever you want to change it to
+      const newArr = [...this.state.data]; // copying the old datas array
 
-      updateUnitPrice(index);
-      rank();
-      setData(newArr);
+      if (e.target.name === "unit")
+        newArr[index]["unit"] = JSON.parse(e.target.value);
+      else newArr[index][e.target.name] = e.target.value; // replace e.target.value with whatever you want to change it to
+
+      this.updateUnitPrice(index);
+      this.rank();
+      if (this.state.db) {
+        putItem(this.state.db, newArr[index]).then(
+          this.setState({ data: newArr })
+        );
+      } else this.setState({ data: newArr });
     };
   }
 
-  function onUnitChange(index) {
-    return (e) => {
-      const newArr = [...data]; // copying the old datas array
-      //console.log(index);
-      //console.log(JSON.parse(e.target.value));
-      try {
-        const unit = JSON.parse(e.target.value);
-        newArr[index]["unit"] = unit;
-      } catch (err) {
-        //console.error(err.message);
-        newArr[index]["unit"] = "";
-      }
-      updateUnitPrice(index);
-      rank();
-      setData(newArr);
-    };
-  }
-
-  function addItem() {
-    let newArr = [...data];
-    let newId = listId + 1;
+  addItem() {
+    const newArr = [...this.state.data];
+    const newId = this.state.listId + 1;
     newArr.push(createData(newId));
-    setListId(newId);
-    setData(newArr);
+    this.setState({ listId: newId, data: newArr });
   }
 
-  function removeItem(item) {
-    let newArr = [...data];
-    newArr.splice(data.indexOf(item), 1);
-    newArr = rank(newArr);
-    setData(newArr);
+  removeItem(item) {
+    let newArr = [...this.state.data];
+    const id = item.id;
+    newArr.splice(this.state.data.indexOf(item), 1);
+    newArr = this.rank(newArr);
+    if (this.state.db) {
+      deleteItem(this.state.db, id).then(this.setState({ data: newArr }));
+    } else this.setState({ data: newArr });
   }
 
-  return (
-    <Container component="main">
-      <div className={classes.root}>
-        <TableContent
-          data={data}
-          updateFieldChanged={updateFieldChanged}
-          onUnitChange={onUnitChange}
-          rank={rank}
-          removeItem={removeItem}
-          addItem={addItem}
-        />
-      </div>
-    </Container>
-  );
+  render() {
+    const classes = useStyles;
+    return (
+      <Container component="main">
+        <div className={classes.root}>
+          {!this.state.isDataReady ? <CircularProgress /> : null}
+          <ListContent
+            data={this.state.data}
+            onChange={this.onChange}
+            rank={this.rank}
+            removeItem={this.removeItem}
+            addItem={this.addItem}
+          />
+        </div>
+      </Container>
+    );
+  }
 }
+
+export function createData(
+  id,
+  quantity = "",
+  price = "",
+  unitprice = "",
+  unit = JSON.parse(unitValueJSON("piece", "piece", "1", "piece")),
+  rank = ""
+) {
+  return {
+    id,
+    quantity,
+    price,
+    unitprice,
+    unit,
+    rank
+  };
+}
+
+export default List;

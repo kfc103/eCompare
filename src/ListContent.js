@@ -1,7 +1,10 @@
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
-import TextField from "@material-ui/core/TextField";
+import FormControl from "@material-ui/core/FormControl";
+import InputLabel from "@material-ui/core/InputLabel";
+import Input from "@material-ui/core/Input";
+import InputAdornment from "@material-ui/core/InputAdornment";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
@@ -10,8 +13,8 @@ import Grid from "@material-ui/core/Grid";
 import { useStyles } from "./Styles";
 import UnitSelect from "./UnitSelect";
 
-export default function TableContent({ data, ...args }) {
-  const classes = useStyles();
+export default function ListContent({ data, ...args }) {
+  const classes = useStyles;
   return (
     <List>
       <Grid container spacing={1}>
@@ -25,29 +28,41 @@ export default function TableContent({ data, ...args }) {
             >
               <Grid container item xs={11} sm={11} spacing={1}>
                 <Grid item xs={4} sm={4} md={3}>
-                  <TextField
-                    name="price"
-                    label="Price"
-                    size="small"
-                    type="number"
-                    fullWidth
-                    value={item.price}
-                    onChange={args.updateFieldChanged(index)}
-                  />
+                  <FormControl fullWidth className={classes.margin}>
+                    <InputLabel htmlFor="standard-adornment-amount">
+                      Price
+                    </InputLabel>
+                    <Input
+                      name="price"
+                      type="number"
+                      value={item.price}
+                      onChange={args.onChange(index)}
+                      startAdornment={
+                        <InputAdornment position="start">$</InputAdornment>
+                      }
+                    />
+                  </FormControl>
                 </Grid>
                 <Grid item xs={4} sm={4} md={3}>
-                  <TextField
-                    name="quantity"
-                    label="Quantity"
-                    size="small"
-                    type="number"
-                    fullWidth
-                    value={item.quantity}
-                    onChange={args.updateFieldChanged(index)}
-                  />
+                  <FormControl fullWidth className={classes.margin}>
+                    <InputLabel htmlFor="standard-adornment-amount">
+                      Quantity
+                    </InputLabel>
+                    <Input
+                      name="quantity"
+                      type="number"
+                      value={item.quantity}
+                      onChange={args.onChange(index)}
+                    />
+                  </FormControl>
                 </Grid>
                 <Grid item xs={3} sm={3} md={2}>
-                  <UnitSelect onChange={args.onUnitChange} index={index} />
+                  <UnitSelect
+                    name="unit"
+                    value={item.unit}
+                    onChange={args.onChange}
+                    index={index}
+                  />
                 </Grid>
                 <Grid item xs={11} sm={11} md={3}>
                   <ListItemText
@@ -79,9 +94,7 @@ export default function TableContent({ data, ...args }) {
         variant="contained"
         color="primary"
         fullWidth
-        onClick={() => {
-          return args.addItem();
-        }}
+        onClick={() => args.addItem()}
       >
         <AddIcon />
       </Button>
