@@ -5,11 +5,25 @@ export const useStyles = makeStyles((theme) => ({
     width: "100%",
     flexGrow: 1,
     minWidth: "500",
-    backgroundColor: theme.palette.background.paper
+    backgroundColor: theme.palette.background.paper,
+    display: "flex",
+    flexDirection: "column"
   },
-  paper: {
-    padding: theme.spacing(1),
-    textAlign: "center",
-    color: theme.palette.text.secondary
+  main: {
+    marginTop: theme.spacing(8),
+    marginBottom: theme.spacing(2)
+  },
+  footer: {
+    padding: theme.spacing(3, 2),
+    marginTop: "auto",
+    backgroundColor:
+      theme.palette.type === "light"
+        ? theme.palette.grey[200]
+        : theme.palette.grey[800]
+  },
+  fab: {
+    position: "absolute",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2)
   }
 }));

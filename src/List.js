@@ -1,7 +1,11 @@
 import React from "react";
+import PropTypes from "prop-types";
 import Container from "@material-ui/core/Container";
-import CircularProgress from "@material-ui/core/CircularProgress";
+import LinearProgress from "@material-ui/core/LinearProgress";
+import Fab from "@material-ui/core/Fab";
+import AddIcon from "@material-ui/icons/Add";
 import ListContent from "./ListContent";
+import { withStyles } from "@material-ui/styles";
 import { useStyles } from "./Styles";
 import { prepareDb, readAll, putItem, deleteItem } from "./Storage";
 import { unitValueJSON } from "./UnitSelect";
@@ -10,7 +14,7 @@ class List extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { listId: 0, data: [], db: null, isDataReady: false };
+    this.state = { listId: 0, data: [], db: null, isBusy: false };
 
     this.addItem = this.addItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
@@ -30,7 +34,7 @@ class List extends React.Component {
               listId: results.length,
               data: results,
               db: db,
-              isDataReady: true
+              isBusy: true
             });
           },
           // rejected
@@ -53,27 +57,9 @@ class List extends React.Component {
     this.setState({
       listId: defaultData.length,
       data: defaultData,
-      isDataReady: true
+      isBusy: true
     });
   }
-
-  /*createData(
-    id,
-    quantity = "",
-    price = "",
-    unitprice = "",
-    unit = JSON.parse(unitValueJSON("piece", "piece", "1", "piece")),
-    rank = ""
-  ) {
-    return {
-      id,
-      quantity,
-      price,
-      unitprice,
-      unit,
-      rank
-    };
-  }*/
 
   calUnitPrice(item) {
     const unitprice = Number(
@@ -102,7 +88,7 @@ class List extends React.Component {
     let newArr = arr;
     if (newArr === undefined) newArr = [...this.state.data];
 
-    if (newArr.length > 1 && !this.isListError()) {
+    if (newArr.length > 1 && !this.isListError(newArr)) {
       let rankedArr = newArr;
 
       rankedArr.sort((a, b) => {
@@ -110,17 +96,17 @@ class List extends React.Component {
       });
 
       newArr.forEach((item) => {
-        if (item.unitprice === "") item.rank = "";
+        if (item.unitprice === "") item.rank = 0;
         else {
-          if (item.unitprice === rankedArr[0].unitprice) item.rank = "1st";
-          else if (item.unitprice === rankedArr[1].unitprice) item.rank = "2nd";
-          else if (item.unitprice === rankedArr[2].unitprice) item.rank = "3rd";
-          else item.rank = "";
+          if (item.unitprice === rankedArr[0].unitprice) item.rank = 3;
+          else if (item.unitprice === rankedArr[1].unitprice) item.rank = 2;
+          else if (item.unitprice === rankedArr[2].unitprice) item.rank = 1;
+          else item.rank = 0;
         }
       });
     } else {
       newArr.forEach((item) => {
-        item.rank = "";
+        item.rank = 0;
       });
     }
 
@@ -129,10 +115,13 @@ class List extends React.Component {
     return newArr;
   }
 
-  isListError() {
+  isListError(arr) {
+    let newArr = arr;
+    if (newArr === undefined) newArr = [...this.state.data];
     let retVal = false;
     let type;
-    this.state.data.forEach(function (item) {
+
+    newArr.forEach(function (item) {
       const unitType = item.unit.type;
       if (!item.unitprice) retVal = true;
       if (type && type !== unitType) retVal = true;
@@ -177,19 +166,26 @@ class List extends React.Component {
   }
 
   render() {
-    const classes = useStyles;
+    //const classes = useStyles();
+    const classes = this.props.classes;
     return (
       <Container component="main">
-        <div className={classes.root}>
-          {!this.state.isDataReady ? <CircularProgress /> : null}
-          <ListContent
-            data={this.state.data}
-            onChange={this.onChange}
-            rank={this.rank}
-            removeItem={this.removeItem}
-            addItem={this.addItem}
-          />
-        </div>
+        {!this.state.isBusy ? <LinearProgress /> : null}
+        <ListContent
+          data={this.state.data}
+          onChange={this.onChange}
+          rank={this.rank}
+          removeItem={this.removeItem}
+          addItem={this.addItem}
+        />
+        <Fab
+          color="primary"
+          aria-label="add"
+          className={classes.fab}
+          onClick={() => this.addItem()}
+        >
+          <AddIcon />
+        </Fab>
       </Container>
     );
   }
@@ -201,7 +197,7 @@ export function createData(
   price = "",
   unitprice = "",
   unit = JSON.parse(unitValueJSON("piece", "piece", "1", "piece")),
-  rank = ""
+  rank = 0
 ) {
   return {
     id,

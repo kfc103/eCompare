@@ -19,7 +19,9 @@ export default function UnitSelect({ name, value, ...args }) {
     type: "Weight",
     values: [
       unitValueJSON("weight", "g", "1000", "kg"),
-      unitValueJSON("weight", "kg", "1", "kg")
+      unitValueJSON("weight", "kg", "1", "kg"),
+      unitValueJSON("weight", "pound", "2.20462", "kg"),
+      unitValueJSON("weight", "ounce", "35.274", "kg")
     ]
   });
   units.push({

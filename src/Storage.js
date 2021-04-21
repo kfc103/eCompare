@@ -47,22 +47,6 @@ export const prepareDb = () => {
           keyPath: "id",
           autoIncrement: true
         });
-        /*objectStore.add({
-          id: 1,
-          price: "",
-          quantity: "",
-          rank: "",
-          unit: "",
-          unitprice: ""
-        });
-        objectStore.add({
-          id: 2,
-          price: "",
-          quantity: "",
-          rank: "",
-          unit: "",
-          unitprice: ""
-        });*/
         objectStore.add(createData(1));
         objectStore.add(createData(2));
       }

@@ -1,3 +1,4 @@
+import React from "react";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -5,16 +6,15 @@ import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Input from "@material-ui/core/Input";
 import InputAdornment from "@material-ui/core/InputAdornment";
-import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
-import AddIcon from "@material-ui/icons/Add";
 import Grid from "@material-ui/core/Grid";
+import Rating from "@material-ui/lab/Rating";
 import { useStyles } from "./Styles";
 import UnitSelect from "./UnitSelect";
 
 export default function ListContent({ data, ...args }) {
-  const classes = useStyles;
+  const classes = useStyles();
   return (
     <List>
       <Grid container spacing={1}>
@@ -66,9 +66,9 @@ export default function ListContent({ data, ...args }) {
                 </Grid>
                 <Grid item xs={11} sm={11} md={3}>
                   <ListItemText
-                    primary={"Rank: " + (item.rank ? item.rank : "")}
+                    primary={<Rating value={item.rank} max={3} readOnly />}
                     secondary={
-                      "Unit Price: " +
+                      "$ " +
                       (item.unitprice
                         ? item.unitprice + " per " + item.unit.stdUnit
                         : "")
@@ -90,14 +90,6 @@ export default function ListContent({ data, ...args }) {
           </ListItem>
         ))}
       </Grid>
-      <Button
-        variant="contained"
-        color="primary"
-        fullWidth
-        onClick={() => args.addItem()}
-      >
-        <AddIcon />
-      </Button>
     </List>
   );
 }
