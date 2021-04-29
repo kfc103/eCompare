@@ -171,13 +171,15 @@ class List extends React.Component {
           className={classes.main}
           disableGutters={true}
         >
-          <ListContent
-            data={this.state.data}
-            onChange={this.onChange}
-            rank={this.rank}
-            removeItem={this.removeItem}
-            addItem={this.addItem}
-          />
+          <Container>
+            <ListContent
+              data={this.state.data}
+              onChange={this.onChange}
+              rank={this.rank}
+              removeItem={this.removeItem}
+              addItem={this.addItem}
+            />
+          </Container>
           <Fab
             color="primary"
             aria-label="add"
