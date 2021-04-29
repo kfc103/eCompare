@@ -3,27 +3,32 @@ import { createData } from "./List";
 export const prepareDb = () => {
   return new Promise((resolve, reject) => {
     //prefixes of implementation that we want to test
-    window.indexedDB =
+    let indexedDB =
       window.indexedDB ||
       window.mozIndexedDB ||
       window.webkitIndexedDB ||
       window.msIndexedDB;
+    /*window.indexedDB =
+      window.indexedDB ||
+      window.mozIndexedDB ||
+      window.webkitIndexedDB ||
+      window.msIndexedDB;*/
 
     //prefixes of window.IDB objects
-    window.IDBTransaction =
+    /*window.IDBTransaction =
       window.IDBTransaction ||
       window.webkitIDBTransaction ||
       window.msIDBTransaction;
     window.IDBKeyRange =
-      window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;
+      window.IDBKeyRange || window.webkitIDBKeyRange || window.msIDBKeyRange;*/
 
-    if (!window.indexedDB) {
+    if (!indexedDB) {
       console.log(
         "Your browser doesn't support a stable version of IndexedDB."
       );
     }
 
-    var request = window.indexedDB.open("eCompareDB", 1);
+    var request = indexedDB.open("eCompareDB", 1);
 
     request.onerror = function (event) {
       //console.log("error: " + event);

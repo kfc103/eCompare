@@ -34,7 +34,7 @@ class List extends React.Component {
         isBusy: false
       });
     } catch (e) {
-      console.log(e);
+      console.log("Cannot retrieve local record: set default value");
       this.setDefaultData();
     }
   }
