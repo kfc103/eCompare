@@ -1,55 +1,42 @@
 import React from "react";
-import PropTypes from "prop-types";
 import Container from "@material-ui/core/Container";
 import LinearProgress from "@material-ui/core/LinearProgress";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import ListContent from "./ListContent";
-import { withStyles } from "@material-ui/styles";
-import { useStyles } from "./Styles";
 import { prepareDb, readAll, putItem, deleteItem } from "./Storage";
+//import { putItem, deleteItem } from "./Storage";
 import { unitValueJSON } from "./UnitSelect";
 
 class List extends React.Component {
   constructor(props) {
     super(props);
 
-    this.state = { listId: 0, data: [], db: null, isBusy: false };
+    this.state = { listId: 0, data: [], db: null, isBusy: true };
 
     this.addItem = this.addItem.bind(this);
     this.removeItem = this.removeItem.bind(this);
     this.onChange = this.onChange.bind(this);
   }
 
-  componentDidMount() {
-    prepareDb().then(
-      // resolved
-      (db) => {
-        //console.log("prepareDb: resolve", db);
-        readAll(db).then(
-          // resolved
-          (results) => {
-            //console.log("Results", results);
-            this.setState({
-              listId: results.length,
-              data: results,
-              db: db,
-              isBusy: true
-            });
-          },
-          // rejected
-          () => {
-            console.log("readAll: rejected");
-            this.setDefaultData();
-          }
-        );
-      },
-      // rejected
-      () => {
-        console.log("prepareDb: rejected");
-        this.setDefaultData();
-      }
-    );
+  async componentDidMount() {
+    try {
+      const db = await prepareDb();
+      console.log("db:" + db);
+
+      const results = await readAll(db);
+      console.log("results: " + results);
+
+      this.setState({
+        listId: results.length,
+        data: results,
+        db: db,
+        isBusy: false
+      });
+    } catch (e) {
+      console.log(e);
+      this.setDefaultData();
+    }
   }
 
   setDefaultData() {
@@ -57,7 +44,7 @@ class List extends React.Component {
     this.setState({
       listId: defaultData.length,
       data: defaultData,
-      isBusy: true
+      isBusy: false
     });
   }
 
@@ -130,6 +117,9 @@ class List extends React.Component {
     return retVal;
   }
 
+  async saveItem(item) {
+    await putItem(this.state.db, item);
+  }
   onChange(index) {
     return (e) => {
       const newArr = [...this.state.data]; // copying the old datas array
@@ -140,11 +130,13 @@ class List extends React.Component {
 
       this.updateUnitPrice(index);
       this.rank();
-      if (this.state.db) {
+      /*if (this.state.db) {
         putItem(this.state.db, newArr[index]).then(
           this.setState({ data: newArr })
         );
-      } else this.setState({ data: newArr });
+      } else this.setState({ data: newArr });*/
+      if (this.state.db) this.saveItem(newArr[index]);
+      this.setState({ data: newArr });
     };
   }
 
@@ -167,27 +159,37 @@ class List extends React.Component {
 
   render() {
     //const classes = useStyles();
-    const classes = this.props.classes;
-    return (
-      <Container component="main">
-        {!this.state.isBusy ? <LinearProgress /> : null}
-        <ListContent
-          data={this.state.data}
-          onChange={this.onChange}
-          rank={this.rank}
-          removeItem={this.removeItem}
-          addItem={this.addItem}
-        />
-        <Fab
-          color="primary"
-          aria-label="add"
-          className={classes.fab}
-          onClick={() => this.addItem()}
+    let classes = "";
+    if (this.props.classes) classes = this.props.classes;
+    console.log(classes.fab);
+
+    if (this.state.isBusy) return <LinearProgress />;
+    else
+      return (
+        <Container
+          component="main"
+          className={classes.main}
+          disableGutters={true}
         >
-          <AddIcon />
-        </Fab>
-      </Container>
-    );
+          <Container>
+            <ListContent
+              data={this.state.data}
+              onChange={this.onChange}
+              rank={this.rank}
+              removeItem={this.removeItem}
+              addItem={this.addItem}
+            />
+          </Container>
+          <Fab
+            color="primary"
+            aria-label="add"
+            className={classes.fab}
+            onClick={() => this.addItem()}
+          >
+            <AddIcon />
+          </Fab>
+        </Container>
+      );
   }
 }
 
