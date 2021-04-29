@@ -11,7 +11,9 @@
     "@material-ui/lab": "4.0.0-alpha.57",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-scripts": "4.0.0"
+    "react-scripts": "4.0.0",
+    "react-virtualized-auto-sizer": "1.0.5",
+    "react-window": "1.8.6"
   },
   "devDependencies": {
     "typescript": "4.1.3"

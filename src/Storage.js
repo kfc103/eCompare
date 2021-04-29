@@ -1,7 +1,7 @@
 import { createData } from "./List";
 
 export const prepareDb = () => {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     //prefixes of implementation that we want to test
     window.indexedDB =
       window.indexedDB ||
@@ -26,13 +26,13 @@ export const prepareDb = () => {
     var request = window.indexedDB.open("eCompareDB", 1);
 
     request.onerror = function (event) {
-      console.log("error: " + event);
-      reject();
+      //console.log("error: " + event);
+      reject(event);
     };
 
     request.onsuccess = function (event) {
       var db = request.result;
-      console.log("success: " + db);
+      //console.log("success: " + db);
       resolve(db);
     };
 
@@ -72,7 +72,7 @@ export const readAll = (db) => {
           resolve(list);
         }
       };
-    } else reject();
+    } else reject("undefined db");
   });
 };
 
