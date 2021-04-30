@@ -8,5 +8,9 @@
   "display": "standalone",
   "orientation": "portrait",
   "theme_color": "aliceblue",
-  "background_color": "white"
+  "background_color": "white",
+  "icons": {
+    "48": "icon.svg",
+    "96": "icon.svg"
+  }
 }
