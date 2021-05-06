@@ -1,5 +1,5 @@
 const cacheName = "eComparePWA-v1";
-const filesToCache = ["index.html"];
+const filesToCache = ["/index.html"];
 
 self.addEventListener("install", function (event) {
   // Perform install steps
