@@ -36,9 +36,9 @@ HideOnScroll.propTypes = {
 export default function App(props) {
   const classes = useStyles();
 
-  /*if ("serviceWorker" in navigator) {
+  if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("/service-worker.js")
+      .register("/serviceWorker.js")
       .then(function (registration) {
         registration.addEventListener("updatefound", function () {
           // If updatefound is fired, it means that there's
@@ -55,20 +55,6 @@ export default function App(props) {
       })
       .catch(function (error) {
         console.log("Service worker registration failed:", error);
-      });
-  } else {
-    console.log("Service workers are not supported.");
-  }*/
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register("/sw.js")
-      .then((reg) => {
-        // registration worked
-        console.log("Registration succeeded. Scope is " + reg.scope);
-      })
-      .catch((error) => {
-        // registration failed
-        console.log("Registration failed with " + error);
       });
   } else {
     console.log("Service workers are not supported.");
