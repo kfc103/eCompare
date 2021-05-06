@@ -61,7 +61,7 @@ export default function App(props) {
   }*/
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("/eCompare/sw.js")
+      .register("/sw.js")
       .then((reg) => {
         // registration worked
         console.log("Registration succeeded. Scope is " + reg.scope);
