@@ -11,9 +11,7 @@
     "@material-ui/lab": "4.0.0-alpha.57",
     "react": "17.0.1",
     "react-dom": "17.0.1",
-    "react-scripts": "4.0.0",
-    "react-virtualized-auto-sizer": "1.0.5",
-    "react-window": "1.8.6"
+    "react-scripts": "4.0.0"
   },
   "devDependencies": {
     "typescript": "4.1.3"
@@ -26,10 +24,5 @@
     "test": "react-scripts test --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "browserslist": [
-    ">0.2%",
-    "not dead",
-    "not ie <= 11",
-    "not op_mini all"
-  ]
+  "browserslist": [">0.2%", "not dead", "not ie <= 11", "not op_mini all"]
 }

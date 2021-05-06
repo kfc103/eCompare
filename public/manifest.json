@@ -11,7 +11,7 @@
   "background_color": "white",
   "icons": [
     {
-      "src": "icon.svg",
+      "src": "icons/icon.svg",
       "sizes": "36x36 48x48 72x72 96x96 144x144 192x192"
     }
   ]
