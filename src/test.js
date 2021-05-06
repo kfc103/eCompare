@@ -1,7 +1,7 @@
 const cacheName = "eComparePWA-v1";
 const filesToCache = ["index.html"];
 
-self.addEventListener("install", function (event) {
+/*self.addEventListener("install", function (event) {
   // Perform install steps
   console.log("[Servicework] Install");
   event.waitUntil(
@@ -36,3 +36,4 @@ self.addEventListener("fetch", (event) => {
     })
   );
 });
+*/
