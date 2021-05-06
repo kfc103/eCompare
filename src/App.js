@@ -61,25 +61,18 @@ export default function App(props) {
   }*/
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
-      .register("./test.js")
+      .register("/sw.js")
       .then((reg) => {
         // registration worked
         console.log("Registration succeeded. Scope is " + reg.scope);
-        console.log(reg);
-        alert("Registration succeeded. Scope is " + reg.scope);
       })
       .catch((error) => {
         // registration failed
         console.log("Registration failed with " + error);
-        alert("Registration failed with " + error);
       });
   } else {
     console.log("Service workers are not supported.");
-    alert("Service workers are not supported.");
   }
-
-  const nav = navigator;
-  console.log(nav.serviceWorker);
 
   return (
     <React.Fragment>
