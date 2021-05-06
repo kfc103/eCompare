@@ -36,6 +36,48 @@ HideOnScroll.propTypes = {
 export default function App(props) {
   const classes = useStyles();
 
+  /*if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/service-worker.js")
+      .then(function (registration) {
+        registration.addEventListener("updatefound", function () {
+          // If updatefound is fired, it means that there's
+          // a new service worker being installed.
+          var installingWorker = registration.installing;
+          console.log(
+            "A new service worker is being installed:",
+            installingWorker
+          );
+
+          // You can listen for changes to the installing service worker's
+          // state via installingWorker.onstatechange
+        });
+      })
+      .catch(function (error) {
+        console.log("Service worker registration failed:", error);
+      });
+  } else {
+    console.log("Service workers are not supported.");
+  }*/
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker
+      .register("/eCompare/sw.js")
+      .then((reg) => {
+        // registration worked
+        console.log("Registration succeeded. Scope is " + reg.scope);
+        console.log(reg);
+      })
+      .catch((error) => {
+        // registration failed
+        console.log("Registration failed with " + error);
+      });
+  } else {
+    console.log("Service workers are not supported.");
+  }
+
+  const nav = navigator;
+  console.log(nav.serviceWorker);
+
   return (
     <React.Fragment>
       <CssBaseline />

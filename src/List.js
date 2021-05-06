@@ -58,7 +58,7 @@ class List extends React.Component {
   }
 
   updateUnitPrice(index) {
-    let newArr = [...this.state.data];
+    const newArr = this.state.data;
 
     if (index === undefined) {
       newArr.forEach((item) => {
@@ -103,26 +103,27 @@ class List extends React.Component {
   }
 
   isListError(arr) {
-    let newArr = arr;
-    if (newArr === undefined) newArr = [...this.state.data];
     let retVal = false;
-    let type;
+    let unitType;
 
-    newArr.forEach(function (item) {
-      const unitType = item.unit.type;
+    arr.forEach(function (item) {
+      const thisUnitType = item.unit.type;
       if (!item.unitprice) retVal = true;
-      if (type && type !== unitType) retVal = true;
-      else if (type === undefined) type = unitType;
+      if (unitType && unitType !== thisUnitType) retVal = true;
+      else if (unitType === undefined) unitType = thisUnitType;
     });
+
     return retVal;
   }
 
   async saveItem(item) {
     await putItem(this.state.db, item);
   }
+
   onChange(index) {
     return (e) => {
-      const newArr = [...this.state.data]; // copying the old datas array
+      //let newArr = [...this.state.data]; // copying the old datas array
+      let newArr = this.state.data;
 
       if (e.target.name === "unit")
         newArr[index]["unit"] = JSON.parse(e.target.value);
@@ -130,25 +131,22 @@ class List extends React.Component {
 
       this.updateUnitPrice(index);
       this.rank();
-      /*if (this.state.db) {
-        putItem(this.state.db, newArr[index]).then(
-          this.setState({ data: newArr })
-        );
-      } else this.setState({ data: newArr });*/
       if (this.state.db) this.saveItem(newArr[index]);
       this.setState({ data: newArr });
     };
   }
 
   addItem() {
-    const newArr = [...this.state.data];
+    //const newArr = [...this.state.data];
+    const newArr = this.state.data;
     const newId = this.state.listId + 1;
     newArr.push(createData(newId));
     this.setState({ listId: newId, data: newArr });
   }
 
   removeItem(item) {
-    let newArr = [...this.state.data];
+    //let newArr = [...this.state.data];
+    let newArr = this.state.data;
     const id = item.id;
     newArr.splice(this.state.data.indexOf(item), 1);
     newArr = this.rank(newArr);
