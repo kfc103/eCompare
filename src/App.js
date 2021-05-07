@@ -10,68 +10,44 @@ import Slide from "@material-ui/core/Slide";
 import List from "./List";
 import { useStyles } from "./Styles";
 
-function HideOnScroll(props) {
-  const { children, window } = props;
-  // Note that you normally won't need to set the window ref as useScrollTrigger
-  // will default to window.
-  // This is only being set here because the demo is in an iframe.
-  const trigger = useScrollTrigger({ target: window ? window() : undefined });
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      {children}
-    </Slide>
-  );
-}
-
-HideOnScroll.propTypes = {
-  children: PropTypes.element.isRequired,
-  /**
-   * Injected by the documentation to work in an iframe.
-   * You won't need it on your project.
-   */
-  window: PropTypes.func
-};
-
-export default function App(props) {
-  const classes = useStyles();
-
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register("/serviceWorker.js")
-      .then(function (registration) {
-        registration.addEventListener("updatefound", function () {
-          // If updatefound is fired, it means that there's
-          // a new service worker being installed.
-          var installingWorker = registration.installing;
-          console.log(
-            "A new service worker is being installed:",
-            installingWorker
-          );
-
-          // You can listen for changes to the installing service worker's
-          // state via installingWorker.onstatechange
-        });
-      })
-      .catch(function (error) {
-        console.log("Service worker registration failed:", error);
-      });
-  } else {
-    console.log("Service workers are not supported.");
+    this.state = { showInstalledMessage: false, showUpdateMessage: false };
   }
 
-  return (
-    <React.Fragment>
-      <CssBaseline />
-      <HideOnScroll {...props}>
+  componentDidMount() {
+    const { appServiceWorker } = this.props;
+    appServiceWorker.onInstalled(() =>
+      this.setState({ showInstalledMessage: true })
+    );
+    appServiceWorker.onUpdateFound(() =>
+      this.setState({ showUpdateMessage: true })
+    );
+    console.log(appServiceWorker);
+  }
+  render() {
+    //const classes = useStyles();
+    const classes = "";
+
+    return (
+      <React.Fragment>
+        <CssBaseline />
         <AppBar>
           <Toolbar>
             <Typography variant="h6">eCompare</Typography>
           </Toolbar>
         </AppBar>
-      </HideOnScroll>
-      <Toolbar />
-      <List classes={classes} />
-    </React.Fragment>
-  );
+        <Toolbar />
+        <div>
+          {this.state.showInstalledMessage ? "true" : "false"}
+          {this.state.showUpdateMessage ? "true" : "false"}
+        </div>
+        <List classes={classes} />
+      </React.Fragment>
+    );
+  }
 }
+
+export default App;
