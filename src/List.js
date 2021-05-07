@@ -7,6 +7,31 @@ import ListContent from "./ListContent";
 import { prepareDb, readAll, putItem, deleteItem } from "./Storage";
 //import { putItem, deleteItem } from "./Storage";
 import { unitValueJSON } from "./UnitSelect";
+import { withStyles } from "@material-ui/core/styles";
+
+const styles = (theme) => ({
+  root: {
+    width: "100vw",
+    flexGrow: 1,
+    backgroundColor: theme.palette.background.paper,
+    display: "flex",
+    flexDirection: "column"
+  },
+  main: {
+    //marginTop: theme.spacing(8),
+    //marginBottom: theme.spacing(2)
+    margin: theme.spacing(0)
+  },
+  fab: {
+    position: "fixed",
+    bottom: theme.spacing(2),
+    right: theme.spacing(2)
+  }
+});
+
+/*List.propTypes = {
+  classes: PropTypes.object.isRequired
+};*/
 
 class List extends React.Component {
   constructor(props) {
@@ -157,8 +182,10 @@ class List extends React.Component {
 
   render() {
     //const classes = useStyles();
-    let classes = "";
-    if (this.props.classes) classes = this.props.classes;
+    //let classes = "";
+    //if (this.props.classes) classes = this.props.classes;
+    const { classes } = this.props;
+    console.log(this.props);
 
     if (this.state.isBusy) return <LinearProgress />;
     else
@@ -208,4 +235,4 @@ export function createData(
   };
 }
 
-export default List;
+export default withStyles(styles, { withTheme: true })(List);
