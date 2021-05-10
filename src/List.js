@@ -185,7 +185,6 @@ class List extends React.Component {
     //let classes = "";
     //if (this.props.classes) classes = this.props.classes;
     const { classes } = this.props;
-    console.log(this.props);
 
     if (this.state.isBusy) return <LinearProgress />;
     else
