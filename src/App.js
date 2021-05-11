@@ -7,7 +7,6 @@ import CssBaseline from "@material-ui/core/CssBaseline";
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import Slide from "@material-ui/core/Slide";
 import List from "./List";
-import Snackbar from "./Snackbar";
 
 function HideOnScroll(props) {
   const { children, window } = props;
@@ -66,10 +65,6 @@ class App extends React.Component {
           {this.state.showUpdateMessage ? "true" : "false"}
         </div>
         <List />
-        <Snackbar
-          showInstalledMessage={this.state.showInstalledMessage}
-          showUpdateMessage={this.state.showUpdateMessage}
-        />
       </React.Fragment>
     );
   }
