@@ -62,12 +62,14 @@ class App extends React.Component {
         </HideOnScroll>
         <Toolbar />
         <div>
-          {this.state.showInstalledMessage ? "true" : "false"}
+          {this.state.showInstalledMessage
+            ? "The app has been installed"
+            : null}
           {this.state.showUpdateMessage ? (
-            <a href="/">refresh</a>
-          ) : (
-            <a href="/">refresh</a>
-          )}
+            <div>
+              There is an new update, please <a href="/">refresh</a>
+            </div>
+          ) : null}
         </div>
         <List />
         <Snackbar
