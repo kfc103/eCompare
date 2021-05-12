@@ -30,7 +30,9 @@ export default function SimpleSnackbar({
   showInstalledMessage,
   showUpdateMessage
 }) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = React.useState(
+    showInstalledMessage || showUpdateMessage
+  );
   const classes = useStyles();
 
   const handleClick = () => {
@@ -41,14 +43,17 @@ export default function SimpleSnackbar({
     if (reason === "clickaway") {
       return;
     }
-
     setOpen(false);
   };
 
+  const refreshPage = () => {
+    window.location.reload(false);
+  };
+
   let message = "";
-  if (showInstalledMessage) message = "the app has been installed";
-  if (showUpdateMessage) message = "there is an new update, please refresh";
-  if (showInstalledMessage || showUpdateMessage) setOpen(true);
+  if (showInstalledMessage) message = "The app has been installed";
+  else if (showUpdateMessage)
+    message = "There is an new update, please refresh";
 
   return (
     <div>
@@ -59,14 +64,14 @@ export default function SimpleSnackbar({
           horizontal: "left"
         }}
         open={open}
-        autoHideDuration={6000}
+        autoHideDuration={5000}
         onClose={handleClose}
         message={message}
         className={classes.snackbar}
         action={
           <React.Fragment>
-            <Button color="secondary" size="small" onClick={handleClose}>
-              UNDO
+            <Button color="primary" size="small" onClick={refreshPage}>
+              refresh
             </Button>
             <IconButton
               size="small"
