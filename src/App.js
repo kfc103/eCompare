@@ -70,7 +70,10 @@ class App extends React.Component {
           )}
         </div>
         <List />
-        <Snackbar />
+        <Snackbar
+          showInstalledMessage={this.state.showInstalledMessage}
+          showUpdateMessage={this.state.showUpdateMessage}
+        />
       </React.Fragment>
     );
   }
