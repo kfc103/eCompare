@@ -131,7 +131,7 @@ class List extends React.Component {
 
       this.updateUnitPrice(index);
       this.rank();
-      if (this.state.db) this.saveItem(newArr[index]);
+      if (this.state.db) for (const item of newArr) this.saveItem(item);
       this.setState({ data: newArr });
     };
   }
