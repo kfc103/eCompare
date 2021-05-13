@@ -47,10 +47,10 @@ class List extends React.Component {
   async componentDidMount() {
     try {
       const db = await prepareDb();
-      console.log("db:" + db);
+      //console.log("db:" + db);
 
       const results = await readAll(db);
-      console.log("results: " + results);
+      //console.log("results: " + results);
 
       this.setState({
         listId: results.length,

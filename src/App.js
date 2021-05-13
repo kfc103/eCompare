@@ -6,8 +6,12 @@ import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import Slide from "@material-ui/core/Slide";
+import Collapse from "@material-ui/core/Collapse";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import Alert from "@material-ui/lab/Alert";
 import List from "./List";
-import Snackbar from "./Snackbar";
 
 function HideOnScroll(props) {
   const { children, window } = props;
@@ -49,6 +53,10 @@ class App extends React.Component {
     );
   }
 
+  refreshPage() {
+    window.location.reload(false);
+  }
+
   render() {
     return (
       <React.Fragment>
@@ -61,21 +69,43 @@ class App extends React.Component {
           </AppBar>
         </HideOnScroll>
         <Toolbar />
-        <div>
-          {this.state.showInstalledMessage
-            ? "The app has been installed"
-            : null}
-          {this.state.showUpdateMessage ? (
-            <div>
-              There is an new update, please <a href="/">refresh</a>
-            </div>
-          ) : null}
-        </div>
+        <Collapse in={this.state.showInstalledMessage}>
+          <Alert
+            severity="info"
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  this.setState({ showInstalledMessage: false });
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            The app has been installed
+          </Alert>
+        </Collapse>
+        <Collapse in={this.state.showUpdateMessage}>
+          <Alert
+            severity="info"
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => this.refreshPage()}
+              >
+                <RefreshIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            There is an new update, please refresh
+          </Alert>
+        </Collapse>
         <List />
-        <Snackbar
-          showInstalledMessage={this.state.showInstalledMessage}
-          showUpdateMessage={this.state.showUpdateMessage}
-        />
       </React.Fragment>
     );
   }
