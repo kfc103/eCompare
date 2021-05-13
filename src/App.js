@@ -1,14 +1,17 @@
 import React from "react";
 import PropTypes from "prop-types";
-//import AppBar from "./AppBar";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import useScrollTrigger from "@material-ui/core/useScrollTrigger";
 import Slide from "@material-ui/core/Slide";
+import Collapse from "@material-ui/core/Collapse";
+import IconButton from "@material-ui/core/IconButton";
+import CloseIcon from "@material-ui/icons/Close";
+import RefreshIcon from "@material-ui/icons/Refresh";
+import Alert from "@material-ui/lab/Alert";
 import List from "./List";
-import { useStyles } from "./Styles";
 
 function HideOnScroll(props) {
   const { children, window } = props;
@@ -33,45 +36,79 @@ HideOnScroll.propTypes = {
   window: PropTypes.func
 };
 
-export default function App(props) {
-  const classes = useStyles();
+class App extends React.Component {
+  constructor(props) {
+    super(props);
 
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker
-      .register("/serviceWorker.js")
-      .then(function (registration) {
-        registration.addEventListener("updatefound", function () {
-          // If updatefound is fired, it means that there's
-          // a new service worker being installed.
-          var installingWorker = registration.installing;
-          console.log(
-            "A new service worker is being installed:",
-            installingWorker
-          );
-
-          // You can listen for changes to the installing service worker's
-          // state via installingWorker.onstatechange
-        });
-      })
-      .catch(function (error) {
-        console.log("Service worker registration failed:", error);
-      });
-  } else {
-    console.log("Service workers are not supported.");
+    this.state = { showInstalledMessage: false, showUpdateMessage: false };
   }
 
-  return (
-    <React.Fragment>
-      <CssBaseline />
-      <HideOnScroll {...props}>
-        <AppBar>
-          <Toolbar>
-            <Typography variant="h6">eCompare</Typography>
-          </Toolbar>
-        </AppBar>
-      </HideOnScroll>
-      <Toolbar />
-      <List classes={classes} />
-    </React.Fragment>
-  );
+  componentDidMount() {
+    const { appServiceWorker } = this.props;
+    appServiceWorker.onInstalled(() =>
+      this.setState({ showInstalledMessage: true })
+    );
+    appServiceWorker.onUpdateFound(() =>
+      this.setState({ showUpdateMessage: true })
+    );
+  }
+
+  refreshPage() {
+    window.location.reload(false);
+  }
+
+  render() {
+    return (
+      <React.Fragment>
+        <CssBaseline />
+        <HideOnScroll {...this.props}>
+          <AppBar>
+            <Toolbar>
+              <Typography variant="h6">eCompare</Typography>
+            </Toolbar>
+          </AppBar>
+        </HideOnScroll>
+        <Toolbar />
+        <Collapse in={this.state.showInstalledMessage}>
+          <Alert
+            severity="info"
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  this.setState({ showInstalledMessage: false });
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            The app has been installed
+          </Alert>
+        </Collapse>
+        <Collapse in={this.state.showUpdateMessage}>
+          <Alert
+            severity="info"
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => this.refreshPage()}
+              >
+                <RefreshIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            There is an new update, please refresh
+          </Alert>
+        </Collapse>
+        <List />
+      </React.Fragment>
+    );
+  }
 }
+
+export default App;
