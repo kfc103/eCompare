@@ -40,6 +40,9 @@ export default function ListContent({ data, ...args }) {
                       startAdornment={
                         <InputAdornment position="start">$</InputAdornment>
                       }
+                      inputProps={{
+                        "aria-label": "item-" + item.id + "-price"
+                      }}
                     />
                   </FormControl>
                 </Grid>
@@ -53,11 +56,15 @@ export default function ListContent({ data, ...args }) {
                       type="number"
                       value={item.quantity}
                       onChange={args.onChange(index)}
+                      inputProps={{
+                        "aria-label": "item-" + item.id + "-quantity"
+                      }}
                     />
                   </FormControl>
                 </Grid>
                 <Grid item xs={3} sm={3} md={2}>
                   <UnitSelect
+                    id={"item-" + item.id + "-unitSelect"}
                     name="unit"
                     value={item.unit}
                     onChange={args.onChange}
