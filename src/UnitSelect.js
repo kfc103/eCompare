@@ -7,7 +7,7 @@ export function unitValueJSON(type, name, scale, stdUnit) {
   return `{"type":"${type}","name":"${name}","scale":"${scale}","stdUnit":"${stdUnit}"}`;
 }
 
-export default function UnitSelect({ name, value, ...args }) {
+export default function UnitSelect({ id, name, value, ...args }) {
   const classes = useStyles();
 
   let units = [];
@@ -43,7 +43,7 @@ export default function UnitSelect({ name, value, ...args }) {
             ? JSON.stringify(value)
             : unitValueJSON("piece", "piece", "1", "piece")
         }
-        id="grouped-native-select"
+        id={id}
         onChange={args.onChange(args.index)}
       >
         {units.map((unit) => (
