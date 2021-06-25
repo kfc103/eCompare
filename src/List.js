@@ -13,7 +13,7 @@ const styles = (theme) => ({
   root: {
     width: "100vw",
     flexGrow: 1,
-    backgroundColor: theme.palette.background.paper,
+    //backgroundColor: theme.palette.background.paper,
     display: "flex",
     flexDirection: "column"
   },
@@ -24,8 +24,15 @@ const styles = (theme) => ({
   },
   fab: {
     position: "fixed",
-    bottom: theme.spacing(2),
-    right: theme.spacing(2)
+    margin: "auto",
+    bottom: theme.spacing(2) /*,
+    right: theme.spacing(2)*/
+  },
+  flexbox: {
+    display: "flex",
+    position: "fixed",
+    width: "100%",
+    justifyContent: "center"
   }
 });
 
@@ -203,14 +210,16 @@ class List extends React.Component {
               addItem={this.addItem}
             />
           </Container>
-          <Fab
-            color="primary"
-            aria-label="add"
-            className={classes.fab}
-            onClick={() => this.addItem()}
-          >
-            <AddIcon />
-          </Fab>
+          <Container className={classes.flexbox}>
+            <Fab
+              color="primary"
+              aria-label="add"
+              className={classes.fab}
+              onClick={() => this.addItem()}
+            >
+              <AddIcon />
+            </Fab>
+          </Container>
         </Container>
       );
   }
